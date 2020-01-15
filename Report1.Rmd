@@ -1,0 +1,208 @@
+---
+title: "Workout Report 1"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+---
+
+```{r setup, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.width=6.5, fig.height=6.5}
+options(stringsAsFactors=FALSE)
+knitr::opts_chunk$set(echo=FALSE, include=TRUE, warning=FALSE, error=FALSE, message=FALSE)
+#devtools::install_github("tidyverse/dplyr")
+#devtools::install_github("tidyverse/dbplyr")
+#devtools::install_github("rstats-db/odbc")
+library(foreach)
+library(tidyverse)
+library(knitr)
+library(treemapify)
+
+```
+
+
+```{r getData}
+e_s<-read.csv(file="data/exercises_strength.csv")
+
+d_s<-read.csv(file="data/strength.csv")
+```
+
+
+```{r wrangleData}
+#ensure all exercises are present in the coding file
+
+# e_s<-d_s %>%
+#   select(Exercise) %>%
+#   unique()
+# e_s$Group1<-c("Shoulder", "Tricep", "Bicep", "Bicep", "Chest", "Chest", "Core", "Compound", "Tricep", "Core", "Shoulder", "Calf", "Shoulder", "Core", "Core", "Core", "Back", "Core", "Core", "Core", "Core", "Core", "Core", "Back", "Core", "Chest", "Tricep", "Core", "Chest", "Back", "Bicep", "Shoulder", "Bicep", "Back", "Compound")
+# 
+# write.csv(e_s, file="data/exercises_strength.csv")
+
+
+```
+
+
+```{r createDataset}
+d_s<-d_s %>%
+  rename(Reps=X..of.Reps) %>%
+  left_join(e_s, by=c("Exercise")) %>%
+  mutate(Group1=ifelse(is.na(Group1), "Unspecified", Group1))
+
+```
+
+\newpage
+## Volumes
+
+```{r TotalWeightsByExercise}
+tmp<-d_s %>%
+  filter(Weight>0) %>%
+  group_by(Group1, Exercise) %>%
+  summarise(volume_Exercise=sum(Weight * Reps)) %>%
+  group_by(Group1) %>%
+  mutate(volume_Group1=sum(volume_Exercise)) %>%
+  ungroup() %>%
+  mutate(volume_Total=sum(volume_Exercise)) %>%
+  mutate(percent_of_Group1=round(volume_Exercise/volume_Group1 * 100,1),
+         percent_of_Total=round(volume_Exercise/volume_Total * 100,1)) %>%
+  select(-volume_Group1, -volume_Total)
+```
+
+```{r}
+library(treemapify)
+
+# plot
+ggplot(tmp,aes(area=volume_Exercise, fill=Group1, subgroup=Group1)) +
+  geom_treemap() +
+  geom_treemap_text(aes(label=Exercise),place = "topleft", grow = FALSE, size=6, reflow=FALSE) +
+  geom_treemap_subgroup_text(place = "centre", grow = TRUE, alpha = 0.25, angle=45) + 
+  theme(legend.position = "none")
+
+```
+
+```{r}
+kable(tmp)
+```
+
+```{r TotalWeightsByGroup}
+tmp<-d_s %>%
+  filter(Weight>0) %>%
+  group_by(Group1) %>%
+  summarise(volume_Group1=sum(Weight*Reps)) %>%
+  ungroup() %>%
+  mutate(volume_Total=sum(volume_Group1)) %>%
+  mutate(percent_of_Total=round(volume_Group1/volume_Total * 100,1)) %>%
+  select(-volume_Total)
+
+kable(tmp)
+```
+
+\newpage
+## Reps
+
+```{r TotalRepsByExercise}
+tmp<-d_s %>%
+  group_by(Group1, Exercise) %>%
+  summarise(reps_Exercise=sum(Reps)) %>%
+  group_by(Group1) %>%
+  mutate(reps_Group1=sum(reps_Exercise)) %>%
+  ungroup() %>%
+  mutate(reps_Total=sum(reps_Exercise)) %>%
+  mutate(percent_of_Group1=round(reps_Exercise/reps_Group1 * 100,1),
+         percent_of_Total=round(reps_Exercise/reps_Total * 100,1)) %>%
+  select(-reps_Group1, -reps_Total)
+```
+
+```{r}
+# plot
+ggplot(tmp,aes(area=reps_Exercise, fill=Group1, subgroup=Group1)) +
+  geom_treemap() +
+  geom_treemap_text(aes(label=Exercise),place = "topleft", grow = FALSE, size=6, reflow=TRUE) +
+  geom_treemap_subgroup_text(place = "centre", grow = TRUE, alpha = 0.25, angle=45) + 
+  theme(legend.position = "none")
+
+
+```
+
+```{r}
+kable(tmp)
+```
+
+
+```{r TotalRepsByGroup}
+tmp<-d_s %>%
+  group_by(Group1) %>%
+  summarise(reps_Group1=sum(Reps)) %>%
+  ungroup() %>%
+  mutate(reps_Total=sum(reps_Group1)) %>%
+  mutate(percent_of_Total=round(reps_Group1/reps_Total * 100,1)) %>%
+  select(-reps_Total)
+
+kable(tmp)
+```
+
+\newpage
+## Exercises Through Time
+
+```{r AveWeightsByExercise}
+tmp<-d_s %>%
+  mutate(Volume=(Reps*Weight),
+         Sets=1) %>%
+  select(Date, Exercise, Reps, Sets, Weight, Volume) %>%
+  group_by(Exercise) %>%
+  mutate(numDays=n_distinct(Date)) %>%
+  filter(numDays>3) %>%
+  select(-numDays) %>%
+  group_by(Date, Exercise) %>%
+  summarise(numDays=n_distinct(Date), 
+            aveWeight=mean(Weight), maxWeight=max(Weight),
+            aveReps=mean(Reps), maxReps=max(Reps),
+            numSets=sum(Sets),
+            totVolume=sum(Volume)) %>%
+  gather(Measure, Value, -c(1:2)) %>%
+  separate(Measure, c("Measure", "Variable"),sep=3) %>%
+  mutate(Measure=factor(Measure, levels=c("ave", "max", "num", "tot"), labels=c("Average", "Max", "Number", "Total"))) %>%
+  mutate(Variable=factor(Variable, levels=c("Volume", "Weight", "Reps", "Sets")))
+  
+for(myExercise in unique(tmp$Exercise)) {
+ 
+t<-ggplot(tmp %>% filter(Exercise==myExercise)) +
+  geom_line(aes(x=Date, y=Value, group=Measure, linetype=Measure, color=Measure), size=2) +
+    labs(title=myExercise, y="", x="") +
+  facet_wrap(~Variable, ncol=1, scales="free_y") +
+    theme_bw()
+
+print(t)
+}
+```
+
+## Group Through Time
+
+```{r AveWeightsByGroup}
+tmp<-d_s %>%
+  mutate(Volume=(Reps*Weight),
+         Sets=1) %>%
+  select(Date, Group1, Reps, Sets, Weight, Volume) %>%
+  group_by(Group1) %>%
+  mutate(numDays=n_distinct(Date)) %>%
+  filter(numDays>3) %>%
+  select(-numDays) %>%
+  group_by(Date, Group1) %>%
+  summarise(numDays=n_distinct(Date), 
+            aveWeight=mean(Weight), maxWeight=max(Weight),
+            aveReps=mean(Reps), maxReps=max(Reps),
+            numSets=sum(Sets),
+            totVolume=sum(Volume)) %>%
+  gather(Measure, Value, -c(1:2)) %>%
+  separate(Measure, c("Measure", "Variable"),sep=3) %>%
+  mutate(Measure=factor(Measure, levels=c("ave", "max", "num", "tot"), labels=c("Average", "Max", "Number", "Total"))) %>%
+  mutate(Variable=factor(Variable, levels=c("Volume", "Weight", "Reps", "Sets")))
+  
+for(myGroup1 in unique(tmp$Group1)) {
+ 
+t<-ggplot(tmp %>% filter(Group1==myGroup1)) +
+  geom_line(aes(x=Date, y=Value, group=Measure, linetype=Measure, color=Measure), size=2) +
+    labs(title=myGroup1, y="", x="") +
+  facet_wrap(~Variable, ncol=1, scales="free_y") +
+    theme_bw()
+
+print(t)
+}
+```
