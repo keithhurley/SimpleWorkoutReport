@@ -7,22 +7,54 @@ output:
 
 ```{r setup, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.width=6.5, fig.height=6.5}
 options(stringsAsFactors=FALSE)
-knitr::opts_chunk$set(echo=FALSE, include=TRUE, warning=FALSE, error=FALSE, message=FALSE)
+knitr::opts_chunk$set(echo=FALSE, fig.height=9, fig.width=6.5, include=TRUE, warning=FALSE, error=FALSE, message=FALSE)
 #devtools::install_github("tidyverse/dplyr")
 #devtools::install_github("tidyverse/dbplyr")
 #devtools::install_github("rstats-db/odbc")
 library(foreach)
+library(lubridate)
 library(tidyverse)
 library(knitr)
 library(treemapify)
+library(magick)
+library(grid)
+
+#this sets the darkness of the base muscle group image
+transparency_base<-.4
+#this sets the range available for color scale of muscle groups...lower is higher range
+transparency_reserved<-.1
+
+#prep for images
+i<-list()
+i$Neck<-image_read("dia/Neck.png")
+i$Shoulders<-image_read("dia/Shoulders.png")
+i$Back<-image_read("dia/Back.png")
+i$Chest<-image_read("dia/Chest.png")
+i$Triceps<-image_read("dia/Triceps.png")
+i$Biceps<-image_read("dia/Biceps.png")
+i$Forearms<-image_read("dia/Forearms.png")
+i$Core<-image_read("dia/Core.png")
+i$UpperLegs<-image_read("dia/UpperLegs.png")
+i$LowerLegs<-image_read("dia/LowerLegs.png")
+i$Glutes<-image_read("dia/Glutes.png")
+i$WholeBody<-image_read("dia/WholeBody.png")
+i$Base<-image_read("dia/Base_Gray.png")
+
+
+createDiaLayer<-function(img, transparency=0.8){
+  bitmap<-img[[1]]
+  bitmap[4,,]<-as.raw(as.integer(bitmap[4,,])*transparency)
+  img<-image_read(bitmap)
+  return(img)
+}
 
 ```
 
 
 ```{r getData}
-e_s<-read.csv(file="data/exercises_strength.csv")
+e_s<-read.csv(file="data/exercises_strength.csv") 
 
-d_s<-read.csv(file="data/strength.csv")
+d_s<-read.csv(file="data/strength.csv") 
 ```
 
 
@@ -48,6 +80,18 @@ d_s<-d_s %>%
 
 ```
 
+
+```{r}
+tmp<-d_s %>%
+  group_by(Exercise) %>%
+  select(Group1) %>%
+  unique()
+
+kable(tmp)
+```
+
+\newpage
+
 \newpage
 ## Volumes
 
@@ -65,15 +109,16 @@ tmp<-d_s %>%
   select(-volume_Group1, -volume_Total)
 ```
 
-```{r}
-library(treemapify)
 
+
+```{r fig.height=5}
 # plot
 ggplot(tmp,aes(area=volume_Exercise, fill=Group1, subgroup=Group1)) +
   geom_treemap() +
   geom_treemap_text(aes(label=Exercise),place = "topleft", grow = FALSE, size=6, reflow=FALSE) +
   geom_treemap_subgroup_text(place = "centre", grow = TRUE, alpha = 0.25, angle=45) + 
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  labs(title="Volume")
 
 ```
 
@@ -94,7 +139,25 @@ tmp<-d_s %>%
 kable(tmp)
 ```
 
+```{r }
+
+tmp_img<-foreach(x=tmp$Group1, .combine="list") %do% {
+  if(x %in% c("Neck", "Shoulders", "Back", "Chest", "Core", "UpperLegs", "LowerLegs", "Biceps", "Triceps", "Forearms", "WholeBody")){
+        createDiaLayer(img=i[[as.character(x)]], transparency=as.numeric(tmp[tmp$Group1==x, c("percent_of_Total")])/(100-(transparency_reserved*100))+transparency_reserved)
+    }
+}
+
+tmp_img2<-image_flatten(c(createDiaLayer(i[["Base"]], transparency_base),tmp_img)) %>%
+  image_resize("700")
+
+grid.raster(tmp_img2)
+```
+
+
 \newpage
+
+
+
 ## Reps
 
 ```{r TotalRepsByExercise}
@@ -110,7 +173,8 @@ tmp<-d_s %>%
   select(-reps_Group1, -reps_Total)
 ```
 
-```{r}
+
+```{r fig.height=5}
 # plot
 ggplot(tmp,aes(area=reps_Exercise, fill=Group1, subgroup=Group1)) +
   geom_treemap() +
@@ -120,6 +184,7 @@ ggplot(tmp,aes(area=reps_Exercise, fill=Group1, subgroup=Group1)) +
 
 
 ```
+
 
 ```{r}
 kable(tmp)
@@ -138,14 +203,29 @@ tmp<-d_s %>%
 kable(tmp)
 ```
 
+```{r}
+tmp_img<-foreach(x=tmp$Group1, .combine="list") %do% {
+  if(x %in% c("Neck", "Shoulders", "Back", "Chest", "Core", "UpperLegs", "LowerLegs", "Biceps", "Triceps", "Forearms", "WholeBody")){
+        createDiaLayer(img=i[[as.character(x)]], transparency=as.numeric(tmp[tmp$Group1==x, c("percent_of_Total")])/(100-(transparency_reserved*100))+transparency_reserved)
+    }
+}
+
+tmp_img2<-image_flatten(c(createDiaLayer(i[["Base"]], transparency_base),tmp_img)) %>%
+  image_resize("700")
+
+grid.raster(tmp_img2)
+```
+
+
 \newpage
 ## Exercises Through Time
 
 ```{r AveWeightsByExercise}
 tmp<-d_s %>%
   mutate(Volume=(Reps*Weight),
+         OneRM=Weight*(1+(Reps/30)),
          Sets=1) %>%
-  select(Date, Exercise, Reps, Sets, Weight, Volume) %>%
+  select(Date, Exercise, Reps, Sets, Weight, Volume, OneRM) %>%
   group_by(Exercise) %>%
   mutate(numDays=n_distinct(Date)) %>%
   filter(numDays>3) %>%
@@ -155,17 +235,22 @@ tmp<-d_s %>%
             aveWeight=mean(Weight), maxWeight=max(Weight),
             aveReps=mean(Reps), maxReps=max(Reps),
             numSets=sum(Sets),
-            totVolume=sum(Volume)) %>%
-  gather(Measure, Value, -c(1:2)) %>%
+            totVolume=sum(Volume),
+            maxOneRM=max(OneRM)) %>%
+  gather(Measure, Value, -c(1:3)) %>%
   separate(Measure, c("Measure", "Variable"),sep=3) %>%
   mutate(Measure=factor(Measure, levels=c("ave", "max", "num", "tot"), labels=c("Average", "Max", "Number", "Total"))) %>%
-  mutate(Variable=factor(Variable, levels=c("Volume", "Weight", "Reps", "Sets")))
-  
+  mutate(Variable=factor(Variable, levels=c("Volume", "Weight", "Reps", "Sets", "OneRM", "Days"))) %>%
+  ungroup() %>%
+  mutate(Date=mdy(Date))
+
+
 for(myExercise in unique(tmp$Exercise)) {
  
 t<-ggplot(tmp %>% filter(Exercise==myExercise)) +
   geom_line(aes(x=Date, y=Value, group=Measure, linetype=Measure, color=Measure), size=2) +
-    labs(title=myExercise, y="", x="") +
+  geom_point(aes(x=Date, y=Value, group=Measure, color=Measure), size=3.5) +
+  labs(title=myExercise, y="", x="") +
   facet_wrap(~Variable, ncol=1, scales="free_y") +
     theme_bw()
 
