@@ -1,47 +1,83 @@
-Code,Exercise,Group1
-1,Lateral Raise,Shoulders
-3,Overhead Triceps Extensions,Triceps
-5,Hammer Curls,Biceps
-7,Biceps Curl,Biceps
-9,Shoulder Press,Chest
-11,Bench Press,Chest
-13,Kneeling Wood Throws,Core
-15,Renegade Row,Compound
-17,Tricep Throwback,Triceps
-19,Russian Twist,Core
-21,Bent-over Flyes,Shoulders
-23,Standing Heel Raises,LowerLegs
-25,Shoulder Shrug,Shoulders
-40,Ab Twist Machine,Core
-42,Hanging Alternating Leg Lift/knee Lift,Core
-46,sitting ab crunch machine,Core
-49,Superman,Back
-52,Cobra,Core
-55,Laying Heel Touches,Core
-58,Plank,Core
-60,Laying Leg Lift And Hold,Core
-64,Standing Knee Lift With Twist,Core
-65,Standing Side Bend,Core
-66,Standing Crunch,Core
-67,Laying Elbow-back Lifts,Back
-82,One leg cobra,Core
-83,Flyes,Chest
-84,Triceps Extension,Triceps
-85,Leg Raise,Core
-86,Straight Arm Pullover,Chest
-87,One-Arm Rows,Back
-88,High Bicep Curls,Biceps
-89,Front Lateral Raise,Shoulders
-90,Reverse Bicep Curls,Biceps
-92,Upright Row,Shoulders
-93,bench reverse press,Chest
-93,Concentration Curls,Biceps
-93,Kettlebell Slingshot,Compound
-93,Kettlebell Figure-8s,Compound
-93,Kettlebell Swing,WholeBody
-93,Kettlebell One-leg Opposite-side Deadlift,UpperLeg
-93,Kettlebell Laying Hip Thrust,Core
-93,Kettlebell Woodchop Swing,WholeBody
-93,Kettlebell One-Hand Side Swing,WholeBody
-93,Kettlebell One-leg Same-side Deadlift,UpperLeg
-93,Decline Crunches,Core
+"","X","Exercise","Group1"
+"1",373,"Kettlebell One-Hand Side Swing","WholeBody"
+"2",371,"Kettlebell Swing","WholeBody"
+"3",372,"Kettlebell Woodchop Swing","WholeBody"
+"4",NA,"Goblet Squat","UpperLeg"
+"5",NA,"Kettlebell Laying Hip Bridge","UpperLeg"
+"6",367,"Kettlebell One-leg Opposite-side Deadlift","UpperLeg"
+"7",374,"Kettlebell One-leg Same-side Deadlift","UpperLeg"
+"8",NA,"laying side hip adductor lift","UpperLeg"
+"9",NA,"Leg Curl","UpperLeg"
+"10",NA,"Leg Extension","UpperLeg"
+"11",NA,"Leg Press","UpperLeg"
+"12",NA,"Romanian Deadlifts","UpperLeg"
+"13",NA,"Cable Tricep Extension","Triceps"
+"14",108,"Overhead Triceps Extensions","Triceps"
+"15",102,"Tricep Throwback","Triceps"
+"16",13,"Triceps Extension","Triceps"
+"17",67,"Triceps Kickbacks","Triceps"
+"18",75,"Arnold Press","Shoulders"
+"19",99,"Bent-over Flyes","Shoulders"
+"20",NA,"Cable External Rotation","Shoulders"
+"21",326,"Cable Internal Rotation","Shoulders"
+"22",NA,"Cable Lat Pull","Shoulders"
+"23",64,"Cuban Press","Shoulders"
+"24",8,"Front Lateral Raise","Shoulders"
+"25",109,"Lateral Raise","Shoulders"
+"26",98,"Shoulder Shrug","Shoulders"
+"27",6,"Upright Row","Shoulders"
+"28",NA,"Seated Calf Raise","LowerLegs"
+"29",97,"Standing Heel Raises","LowerLegs"
+"30",NA,"Farmer One Hand Steps","Forearms"
+"31",NA,"One Arm Farmers Steps","Forearms"
+"32",680,"Ab Twist Machine","BACK"
+"33",NA,"Bird Dog","Core"
+"34",323,"Cable Kneeling Crunchs","Core"
+"35",59,"Cobra","Core"
+"36",39,"Decline Crunches","Core"
+"37",442,"Hanging Alternating Leg Lift/knee Lift","Core"
+"38",65,"High Plank Pull-Through","Core"
+"39",NA,"Incline Cobras","Core"
+"40",368,"Kettlebell Laying Hip Thrust","Core"
+"41",103,"Kneeling Wood Throws","Core"
+"42",50,"Laying Heel Touches","Core"
+"43",47,"Laying Leg Lift And Hold","Core"
+"44",10,"Leg Raise","Core"
+"45",4,"One leg cobra","Core"
+"46",53,"Plank","Core"
+"47",100,"Russian Twist","Core"
+"48",63,"Side Plank Bends","Core"
+"49",458,"sitting ab crunch machine","Core"
+"50",38,"Standing Crunch","Core"
+"51",569,"Standing Knee Lift With Twist","Core"
+"52",37,"Standing Side Bend","Core"
+"53",370,"Kettlebell Figure-8s","Compound"
+"54",369,"Kettlebell Slingshot","Compound"
+"55",101,"Renegade Row","Compound"
+"56",106,"Bench Press","Chest"
+"57",14,"bench reverse press","Chest"
+"58",1,"Cable Flyes","Chest"
+"59",NA,"Cable Push","Chest"
+"60",554,"Flyes","Chest"
+"61",68,"Incline Press","Chest"
+"62",71,"Incline Two Arm Extension","Chest"
+"63",5,"Shoulder Press","Chest"
+"64",11,"Straight Arm Pullover","Chest"
+"65",104,"Biceps Curl","Biceps"
+"66",NA,"Cable Bicep Curl","Biceps"
+"67",9,"Concentration Curls","Biceps"
+"68",107,"Hammer Curls","Biceps"
+"69",664,"High Bicep Curls","Biceps"
+"70",66,"Incline Curls","Biceps"
+"71",69,"Incline Spider Curls","Biceps"
+"72",7,"Reverse Bicep Curls","Biceps"
+"73",NA,"Bent-over Row","Back"
+"74",NA,"Cable Lat Stretch - Narrow Grip","Back"
+"75",NA,"Cable Lat Stretch - Wide Grip","Back"
+"76",NA,"Cable Pulls","Back"
+"77",70,"Incline Row","Back"
+"78",44,"Laying Elbow-back Lifts","Back"
+"79",12,"One-Arm Rows","Back"
+"80",56,"Superman","Back"
+"81",NA,"Wide-Grip Lat Pulldowns","Back"
+"82",NA,"Cable Lat Pull Down",NA

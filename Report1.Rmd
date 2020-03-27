@@ -54,17 +54,19 @@ createDiaLayer<-function(img, transparency=0.8){
 ```{r getData}
 e_s<-read.csv(file="data/exercises_strength.csv") 
 
-d_s<-read.csv(file="data/strength.csv") 
+d_s<-read.csv(file="data/strength.csv") %>% mutate(date1=mdy(Date)) %>% filter(date1>mdy("2/23/2020"))
 ```
 
 
 ```{r wrangleData}
 #ensure all exercises are present in the coding file
 
+#use "edit_exercises.R" script now
+
 # e_s<-d_s %>%
 #   select(Exercise) %>%
 #   unique()
-# e_s$Group1<-c("Shoulder", "Tricep", "Bicep", "Bicep", "Chest", "Chest", "Core", "Compound", "Tricep", "Core", "Shoulder", "Calf", "Shoulder", "Core", "Core", "Core", "Back", "Core", "Core", "Core", "Core", "Core", "Core", "Back", "Core", "Chest", "Tricep", "Core", "Chest", "Back", "Bicep", "Shoulder", "Bicep", "Back", "Compound")
+# e_s$Group1<-c("Chest","Core","Chest","Shoulders","Biceps","Shoulders","Biceps","Core","Chest","Back","Triceps","Chest","Core","Core","Core","Back","Core","Core","Core","Back","Core","Core","Shoulders","Core","Biceps","Triceps","Chest","Biceps","Back","Chest","Shoulders","LowerLegs","Shoulders","Shoulders","Core","Compound","Triceps","Core","Biceps","Chest","Biceps","Triceps","Shoulders","Core","Shoulders","UpperLeg","Core","Compound","Compound","WholeBody","WholeBody",'WholeBody',"UpperLeg","Core","Core","Chest","Core","Biceps","Core")
 # 
 # write.csv(e_s, file="data/exercises_strength.csv")
 
@@ -75,7 +77,7 @@ d_s<-read.csv(file="data/strength.csv")
 ```{r createDataset}
 d_s<-d_s %>%
   rename(Reps=X..of.Reps) %>%
-  left_join(e_s, by=c("Exercise")) %>%
+  left_join(e_s, by=c("Exercise")) %>% 
   mutate(Group1=ifelse(is.na(Group1), "Unspecified", Group1))
 
 ```
